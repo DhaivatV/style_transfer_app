@@ -1,10 +1,7 @@
 from flask import Flask, request, render_template, send_file
 from flask_celery import make_celery
-import time
 from read_db import get_result, check_status
-from style_transfer.model import style_transfer_image
-import io 
-import os
+from model import style_transfer_image
 import tensorflow as tf
 import numpy
 import numpy as np
