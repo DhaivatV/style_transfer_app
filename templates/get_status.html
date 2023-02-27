@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <title>Task Status</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            background-color: #3e8e41;
+            color: white;
+            margin: 0;
+            padding: 1rem;
+        }
+        p {
+            margin: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Task Status: {{ status }}</h1>
+    {% if status == 'SUCCESS' %}
+        <p>The task has completed successfully.</p>
+    {% elif status == 'FAILURE' %}
+        <p>There was an error while processing the task.</p>
+    {% else %}
+        <p>The task is still in progress. Please check again later.</p>
+    {% endif %}
+</body>
+</html>

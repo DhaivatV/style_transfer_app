@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, send_file
 from flask_celery import make_celery
-from read_db import get_result, check_status
+from read_db import get_result
 from model import style_transfer_image
 import tensorflow as tf
 import numpy
@@ -66,14 +66,12 @@ def download_result():
         task_id = request.form['task_id']
         image = get_result(task_id)
         img_data = BytesIO(image)
-        return send_file(img_data, mimetype='image/png', as_attachment=True)
+        return send_file(img_data, mimetype='image/jpeg', as_attachment=True, download_name= 'output.jpeg')
 
     return render_template('download.html')
 
     # return send_file(img_io, mimetype='image/jpeg', as_attachment=True, attachment_filename='image.jpg')
-       
-    
-    
+
 
 @app.route('/status', methods=['GET'])
 def get_task_status():
@@ -81,9 +79,12 @@ def get_task_status():
         task_id = request.args['task_id']
         task_result = AsyncResult(task_id, app=celery)
 
-        return task_result.state
+        return render_template('get_status.html', status=task_result.state, )
 
     return render_template('status.html')
+
+
+
 
 
 
