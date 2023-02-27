@@ -11,27 +11,12 @@ from PIL import Image
 from io import BytesIO
 
 
-
-
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = broker='amqp://localhost//'
 app.config['CELERY_RESULT_BACKEND'] =  'db+sqlite:///db.sqlite3'
 
 celery = make_celery(app)
 
-def load_img(img, max_dim):
-    img = tf.image.decode_image(img, channels=3)
-    img = tf.image.convert_image_dtype(img, tf.float32)
-    shape = tf.cast(tf.shape(img)[:-1], tf.float32)
-    long_dim = max(shape)
-    scale = max_dim / long_dim
-
-    new_shape = tf.cast(shape * scale, tf.int32)
-
-    img = tf.image.resize(img, new_shape)
-    img = img.numpy()
-    img = img[tf.newaxis, :]
-    return img
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_photos():
@@ -52,14 +37,6 @@ def upload_photos():
     return render_template(r'upload.html', css_file='style.css')
 
 
-def tensor_to_image(tensor):
-    tensor = tensor * 255
-    tensor = np.array(tensor, dtype=np.uint8)
-    if np.ndim(tensor) > 3:
-        assert tensor.shape[0] == 1
-        tensor = tensor[0]
-    return PIL.Image.fromarray(tensor)
-
 @app.route('/download', methods=['GET', 'POST'])
 def download_result():
     if request.method == 'POST':
@@ -70,8 +47,7 @@ def download_result():
 
     return render_template('download.html')
 
-    # return send_file(img_io, mimetype='image/jpeg', as_attachment=True, attachment_filename='image.jpg')
-
+   
 
 @app.route('/status', methods=['GET'])
 def get_task_status():
@@ -82,10 +58,6 @@ def get_task_status():
         return render_template('get_status.html', status=task_result.state, )
 
     return render_template('status.html')
-
-
-
-
 
 
 @celery.task(name = 'app.transfer')
@@ -103,4 +75,4 @@ def transfer(photo1, photo2):
 
 
 if __name__=='__main__':
-     app.run(port=8001)
+     app.run(debug=False)
