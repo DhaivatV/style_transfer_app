@@ -12,26 +12,29 @@ from io import BytesIO
 
 
 app = Flask(__name__)
-app.config['CELERY_BROKER_URL'] = broker='amqp://localhost//'
+app.config['CELERY_BROKER_URL'] = broker='redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] =  'db+sqlite:///db.sqlite3'
 
 celery = make_celery(app)
 
+@app.route('/', methods=['GET'])
+def index():
+    
+    return render_template(r'index.html', css_file='style.css')
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_photos():
     if request.method == 'POST':
         # retrieve the uploaded photos from the request
         photo1 = request.files['content Photo']
         photo2 = request.files['Style Photo']
-
-        max_dim=1000
+     
         photo1 = base64.b64encode(photo1.read()).decode('utf-8')
         photo2 = base64.b64encode(photo2.read()).decode('utf-8')
 
         res = transfer.delay(photo1, photo2)
-
-        return {"id":res.id, "status": res.status}
+    
+        return render_template('up_response.html', task_id=res.id, status=res.status)
 
 
     return render_template(r'upload.html', css_file='style.css')
