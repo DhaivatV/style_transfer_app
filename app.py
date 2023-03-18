@@ -9,9 +9,10 @@ import base64
 from celery.result import AsyncResult
 from PIL import Image
 from io import BytesIO
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.config['CELERY_BROKER_URL'] = broker='redis://localhost:6379/0'
 app.config['CELERY_RESULT_BACKEND'] =  'db+sqlite:///db.sqlite3'
 
@@ -52,10 +53,10 @@ def download_result():
 
    
 
-@app.route('/status', methods=['GET'])
+@app.route('/status', methods=['GET', 'POST'])
 def get_task_status():
-    if 'task_id' in request.args:
-        task_id = request.args['task_id']
+    if request.method == 'POST':
+        task_id = request.form['task_id']
         task_result = AsyncResult(task_id, app=celery)
 
         return render_template('get_status.html', status=task_result.state, )
