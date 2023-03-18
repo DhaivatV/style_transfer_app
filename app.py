@@ -46,9 +46,9 @@ def download_result():
     if request.method == 'POST':
         task_id = request.form['task_id']
         image = get_result(task_id)
-        img_data = BytesIO(image)
-        return send_file(img_data, mimetype='image/png')
-
+        # img_data = BytesIO(image)
+        # return send_file(img_data, mimetype='image/png')
+        return image
     return render_template('download.html')
 
    
