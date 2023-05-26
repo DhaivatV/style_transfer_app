@@ -13,7 +13,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-app.config['CELERY_BROKER_URL'] = broker='redis://localhost:6379/0'
+app.config['CELERY_BROKER_URL'] = broker='redis://red-choh027dvk4goeqca640:6379'
 app.config['CELERY_RESULT_BACKEND'] =  'db+sqlite:///db.sqlite3'
 
 celery = make_celery(app)
